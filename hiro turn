@@ -1,0 +1,77 @@
+import random
+
+# Базовый класс для всех героев
+class Hero:
+    def __init__(self, name, health, attack_min, attack_max, defense):
+        self.name = name
+        self.health = health
+        self.attack_min = attack_min
+        self.attack_max = attack_max
+        self.defense = defense
+
+    def attack(self):
+        # Случайный урон в диапазоне от attack_min до attack_max
+        return random.randint(self.attack_min, self.attack_max)
+
+    def take_damage(self, damage):
+        # Расчет урона с учетом защиты
+        damage_taken = max(damage - self.defense, 0)
+        self.health -= damage_taken
+        return damage_taken
+
+    def is_alive(self):
+        return self.health > 0
+
+    def __str__(self):
+        return f"{self.name}: Здоровье - {self.health}"
+
+# Класс для создания игрока
+class Player(Hero):
+    def __init__(self, name):
+        super().__init__(name, health=100, attack_min=10, attack_max=20, defense=5)
+
+# Класс для создания компьютерного противника
+class Enemy(Hero):
+    def __init__(self):
+        super().__init__(name="Враг", health=100, attack_min=8, attack_max=18, defense=3)
+
+# Основная игра
+class Game:
+    def __init__(self):
+        self.player = Player(input("Введите имя игрока: "))
+        self.enemy = Enemy()
+
+    def start(self):
+        print("\n--- НАЧАЛО БОЯ ---")
+        round_number = 1
+        while self.player.is_alive() and self.enemy.is_alive():
+            print(f"\n--- РАУНД {round_number} ---")
+            print(self.player)
+            print(self.enemy)
+
+            # Ход игрока
+            input("Нажмите Enter, чтобы атаковать...")
+            player_attack = self.player.attack()
+            enemy_damage = self.enemy.take_damage(player_attack)
+            print(f"{self.player.name} наносит {player_attack} урона! Враг получает {enemy_damage} урона.")
+
+            if not self.enemy.is_alive():
+                break
+
+            # Ход врага
+            enemy_attack = self.enemy.attack()
+            player_damage = self.player.take_damage(enemy_attack)
+            print(f"Враг наносит {enemy_attack} урона! {self.player.name} получает {player_damage} урона.")
+
+            round_number += 1
+
+        # Объявление результата
+        if self.player.is_alive():
+            print(f"\n--- ПОБЕДА! {self.player.name} одержал победу! ---")
+        else:
+            print("\n--- ПОРАЖЕНИЕ! Враг победил... ---")
+
+# Запуск игры
+if __name__ == "__main__":
+    game = Game()
+    game.start()
